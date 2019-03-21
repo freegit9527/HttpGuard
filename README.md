@@ -1,3 +1,6 @@
+问题记录：
+1.在加入黑名单后启用图片验证，没有把静态页面比如图片，js等排除，导致输入验证码时跳到静态图片页面，经常遇到跳到favicon.ico页面。
+
 # http-guard
 
 HttpGuard是基于openresty,以lua脚本语言开发的防cc攻击软件。而openresty是集成了高性能web服务器Nginx，以及一系列的Nginx模块，这其中最重要的，也是我们主要用到的nginx lua模块。HttpGuard基于nginx lua开发，继承了nginx高并发，高性能的特点，可以以非常小的性能损耗来防范大规模的cc攻击。
