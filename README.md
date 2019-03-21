@@ -3,6 +3,36 @@
 1.在加入黑名单后启用图片验证，没有把静态页面比如图片，js等排除，导致输入验证码时跳到静态图片页面，经常遇到跳到favicon.ico页面。
 2.需要保护的连接是正则匹配，需要注意；如果是保护登录页面，建议在config中配置 urlMatchMode = "requestUri",然后在保护url中录入完成的登录页面。
 
+function Guard:captchaAction(ip,reqUri)
+        -- 访问验证码超过一定次数使用iptables封锁
+        if _Conf.captchaToIptablesIsOn then
+                local captchaReqKey = ip.."captchareqkey" --定义captcha req key
+                local reqTimes = _Conf.dict:get(captchaReqKey) --获取此ip验证码请求的次数
+                --增加一次请求记录
+                if reqTimes then
+                        _Conf.dict:incr(captchaReqKey, 1)
+                else
+                        _Conf.dict:set(captchaReqKey, 1, _Conf.captchaToIptables.amongTime)
+                        reqTimes = 0
+                end
+
+                local newReqTimes  = reqTimes + 1
+                self:debug("[captchaToIptables] newReqTimes "..newReqTimes,ip,reqUri)
+                --判断请求数是否大于阀值,大于则iptables封锁
+                if newReqTimes > _Conf.captchaToIptables.maxReqs then --判断是否请求数大于阀值
+                        self:debug("[captchaToIptables] ip "..ip.. " request exceed ".._Conf.captchaToIptables.maxReqs,ip,reqUri)
+                        ngx.thread.spawn(Guard.addToIptables,Guard,ip) -- iptables封锁
+                        self:log("[captchaToIptables] IP "..ip.." visit "..newReqTimes.." times,iptables block it.")
+                end
+
+        end
+        local reqUri = "/MOBAN/index.php"   --定义输入验证码后跳转的页面url,此处有bug，如果不定义，有可能会返回静态图片页面。
+        ngx.header.content_type = "text/html"
+        ngx.header['Set-Cookie'] = table.concat({"preurl=",reqUri,"; path=/"})
+        ngx.print(_Conf.captchaPage)
+        ngx.exit(200)
+end
+
 
 # http-guard
 
