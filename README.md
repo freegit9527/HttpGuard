@@ -1,7 +1,7 @@
 问题记录：<br/>
 
 1.在加入黑名单后启用图片验证，没有把静态页面比如图片，js等排除，导致输入验证码时跳到静态图片页面，经常遇到跳到favicon.ico页面。<br/>
-2.需要保护的连接是正则匹配，需要注意；如果是保护登录页面，建议在config中配置 urlMatchMode = "requestUri",然后在保护url中录入完成的登录页面。<br/>
+2.需要保护的连接是正则匹配，需要注意；如果是保护登录页面防止撞库，建议在config中配置 urlMatchMode = "requestUri",然后在保护url中录入完成的登录页面。<br/>
 
 function Guard:captchaAction(ip,reqUri)
         -- 访问验证码超过一定次数使用iptables封锁
